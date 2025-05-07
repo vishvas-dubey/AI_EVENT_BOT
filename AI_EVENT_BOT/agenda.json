@@ -1,0 +1,36 @@
+{
+    "Day 1": [
+        {
+            "time": "09:00 - 10:00",
+            "topic": "Registration & Breakfast"
+        },
+        {
+            "time": "10:00 - 11:00",
+            "topic": "Kickoff & Introduction to AI/ML"
+        },
+        {
+            "time": "11:00 - 12:00",
+            "topic": "Python for Data Science Workshop"
+        },
+        {
+            "time": "12:00 - 13:00",
+            "topic": "Cloud Computing with AI"
+        },
+        {
+            "time": "13:00 - 14:00",
+            "topic": "Lunch Break"
+        },
+        {
+            "time": "14:00 - 15:30",
+            "topic": "Building LLM Applications"
+        },
+        {
+            "time": "15:30 - 17:00",
+            "topic": "Computer Vision & NLP Workshop"
+        },
+        {
+            "time": "17:00 - 18:00",
+            "topic": "RAG Systems with Vertex AI"
+        }
+    ]
+}

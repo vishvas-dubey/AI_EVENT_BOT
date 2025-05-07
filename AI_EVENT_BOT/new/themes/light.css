@@ -1,0 +1,45 @@
+body {
+    background-color: #f5f7fa;
+    color: #1F2937;
+}
+
+h1, h2, h3 {
+    color: #1E3A8A;
+}
+
+.card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+
+.voice-box {
+    background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stButton>button {
+    background-color: #4F46E5;
+    color: white;
+}
+
+.agenda-item {
+    background-color: white;
+}
+
+.user-bubble {
+    background-color: #4F46E5;
+    color: white;
+}
+
+.bot-bubble {
+    background-color: white;
+    color: #1F2937;
+}
+
+.highlight {
+    background-color: #DBEAFE;
+}
