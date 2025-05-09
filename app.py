@@ -44,7 +44,9 @@ st.markdown("""
     }
     
     h1, h2, h3 {
-        color: #1E3A8A;
+        background: linear-gradient(90deg, #4F46E5, #6366F1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         font-weight: 600;
     }
     
@@ -55,76 +57,119 @@ st.markdown("""
     .card {
         background-color: white;
         border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
         border-left: 5px solid #4338CA;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15), 0 10px 15px -5px rgba(0,0,0,0.1);
     }
     
     .voice-box {
         background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
-        padding: 30px;
-        border-radius: 15px;
+        padding: 35px;
+        border-radius: 20px;
         text-align: center;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        margin-bottom: 25px;
         border: 1px solid #C7D2FE;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .voice-box::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+        opacity: 0;
+        transition: opacity 0.5s;
+        pointer-events: none;
+    }
+    
+    .voice-box:hover::before {
+        opacity: 1;
     }
     
     .stButton>button {
-        background-color: #4F46E5;
+        background: linear-gradient(90deg, #4F46E5, #6366F1);
         color: white;
-        padding: 10px 25px;
+        padding: 12px 30px;
         font-size: 16px;
         font-weight: 500;
         border: none;
-        border-radius: 8px;
-        margin-top: 10px;
-        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+        border-radius: 10px;
+        margin-top: 15px;
+        box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
         transition: all 0.3s ease;
     }
     
     .stButton>button:hover {
-        background-color: #4338CA;
-        box-shadow: 0 6px 10px rgba(79, 70, 229, 0.35);
-        transform: translateY(-2px);
+        background: linear-gradient(90deg, #4338CA, #4F46E5);
+        box-shadow: 0 8px 15px rgba(79, 70, 229, 0.4);
+        transform: translateY(-3px);
+    }
+    
+    .stButton>button:active {
+        transform: translateY(-1px);
     }
     
     .agenda-item {
-        padding: 15px;
-        border-radius: 8px;
+        padding: 18px;
+        border-radius: 12px;
         background-color: white;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         border-left: 4px solid #4F46E5;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .agenda-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.12);
     }
     
     .agenda-time {
         font-weight: 600;
         color: #4F46E5;
+        font-size: 1.05em;
     }
     
     .highlight {
-        background-color: #DBEAFE;
-        padding: 2px 6px;
-        border-radius: 4px;
+        background: linear-gradient(90deg, #DBEAFE, #E0E7FF);
+        padding: 3px 8px;
+        border-radius: 6px;
         font-weight: 500;
+        margin: 0 2px;
     }
     
     /* Chat styling */
     .user-bubble, .bot-bubble {
-        padding: 12px 18px;
-        border-radius: 18px;
-        margin-bottom: 10px;
-        max-width: 80%;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        padding: 15px 20px;
+        border-radius: 20px;
+        margin-bottom: 15px;
+        max-width: 85%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
     }
     
     .user-bubble {
-        background-color: #4F46E5;
+        background: linear-gradient(90deg, #4F46E5, #6366F1);
         color: white;
         margin-left: auto;
         border-bottom-right-radius: 5px;
+    }
+    
+    .user-bubble:hover {
+        box-shadow: 0 6px 12px rgba(79, 70, 229, 0.25);
     }
     
     .bot-bubble {
@@ -132,17 +177,31 @@ st.markdown("""
         color: #1F2937;
         margin-right: auto;
         border-bottom-left-radius: 5px;
-        border-left: 3px solid #4F46E5;
+        border-left: 4px solid #4F46E5;
+    }
+    
+    .bot-bubble:hover {
+        box-shadow: 0 6px 12px rgba(0,0,0,0.12);
     }
     
     .pulse-animation {
-        animation: pulse 1.5s infinite;
+        animation: pulse 2s infinite;
     }
     
     @keyframes pulse {
         0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.1); opacity: 0.7; }
+        50% { transform: scale(1.1); opacity: 0.8; }
         100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .floating-animation {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
     }
     
     .stTabs [data-baseweb="tab-list"] {
@@ -150,47 +209,273 @@ st.markdown("""
     }
     
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
+        height: 55px;
         white-space: pre-wrap;
         background-color: white;
-        border-radius: 5px 5px 0 0;
+        border-radius: 10px 10px 0 0;
         gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
     
     .stTabs [aria-selected="true"] {
-        background-color: #4F46E5 !important;
+        background: linear-gradient(90deg, #4F46E5, #6366F1) !important;
         color: white !important;
+        transform: translateY(-5px);
+        box-shadow: 0 -4px 15px rgba(79, 70, 229, 0.25) !important;
+    }
+    
+    /* Glassmorphism Effect */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
+    
+    /* Custom Input Fields */
+    .stTextInput>div>div>input {
+        border-radius: 10px;
+        border: 1px solid #E5E7EB;
+        padding: 12px 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .stTextInput>div>div>input:focus {
+        border-color: #4F46E5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+    
+    /* Progress Bar Styling */
+    .stProgress > div > div > div {
+        background-color: #4F46E5;
+        background-image: linear-gradient(45deg, #4F46E5 25%, #6366F1 25%, #6366F1 50%, #4F46E5 50%, #4F46E5 75%, #6366F1 75%);
+        background-size: 20px 20px;
+        animation: progress-animation 2s linear infinite;
+    }
+    
+    @keyframes progress-animation {
+        0% { background-position: 0 0; }
+        100% { background-position: 40px 0; }
+    }
+    
+    /* File Uploader */
+    .stFileUploader {
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px dashed #C7D2FE;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stFileUploader:hover {
+        border-color: #4F46E5;
+        background-color: rgba(224, 231, 255, 0.2);
+    }
+    
+    /* Radio Button */
+    .stRadio > div {
+        padding: 10px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Alert Messages */
+    .stAlert {
+        border-radius: 12px;
+        border-left-width: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    
+    /* Special decorative elements */
+    .decorative-circle {
+        position: fixed;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        opacity: 0.1;
+        z-index: -1;
+    }
+    
+    .circle-1 {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        right: -100px;
+    }
+    
+    .circle-2 {
+        width: 200px;
+        height: 200px;
+        bottom: -50px;
+        left: -50px;
+    }
+
+    /* Shimmer effect for buttons */
+    .shimmer-button {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .shimmer-button::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(30deg);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) rotate(30deg);
+        }
+        100% {
+            transform: translateX(100%) rotate(30deg);
+        }
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #c7d2fe;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a5b4fc;
+    }
+    
+    /* Audio recorder custom styles */
+    .css-1n76uvr, .css-18ni7ap {
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Chat input box */
+    .stChatInput {
+        border-radius: 20px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    }
+    
+    /* Add decorative circles */
+    .decorative-circle {
+        position: fixed;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        opacity: 0.1;
+        z-index: -1;
     }
 </style>
+
+<!-- Decorative Circles -->
+<div class="decorative-circle circle-1"></div>
+<div class="decorative-circle circle-2"></div>
 """, unsafe_allow_html=True)
 
-# Create sidebar
+# Create sidebar with enhanced styling
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center;'>🤖 Event Bot AI</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Your Personal Hackathon Assistant</p>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align: center; margin-bottom: 20px;'>", unsafe_allow_html=True)
+    st.markdown("<h2 style='margin-bottom: 5px;'>🤖 Event Bot AI</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1em; margin-bottom: 25px;'>Your Personal Hackathon Assistant</p>", unsafe_allow_html=True)
     
-    st.markdown("<div style='text-align: center; padding: 20px;'><span style='font-size: 80px;' class='pulse-animation'>🤖</span></div>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align: center; padding: 15px;'><span style='font-size: 90px;' class='floating-animation'>🤖</span></div>", unsafe_allow_html=True)
     
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("<div class='card' style='background: linear-gradient(to bottom right, #fefefe, #f5f7fa);'>", unsafe_allow_html=True)
     st.markdown("### 🗓️ Event Schedule")
-    st.markdown("- 9:00 AM - Registration")
-    st.markdown("- 10:00 AM - Opening Ceremony")
-    st.markdown("- 1:00 PM - Lunch Break")
-    st.markdown("- 6:00 PM - Demos & Judging")
+    
+    # Add a bit more detail and styling to the schedule
+    schedule_items = [
+        {"time": "9:00 AM", "event": "Registration", "icon": "📋"},
+        {"time": "10:00 AM", "event": "Opening Ceremony", "icon": "🎬"},
+        {"time": "1:00 PM", "event": "Lunch Break", "icon": "🍽️"},
+        {"time": "6:00 PM", "event": "Demos & Judging", "icon": "🏆"}
+    ]
+    
+    for item in schedule_items:
+        st.markdown(f"""
+        <div style='padding: 10px; margin-bottom: 10px; border-radius: 8px; background-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+            <div style='display: flex; align-items: center;'>
+                <div style='font-size: 22px; margin-right: 10px;'>{item['icon']}</div>
+                <div>
+                    <div style='font-weight: bold; color: #4F46E5;'>{item['time']}</div>
+                    <div>{item['event']}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
     st.markdown("</div>", unsafe_allow_html=True)
     
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("<div class='card' style='background: linear-gradient(to bottom right, #fefefe, #f5f7fa);'>", unsafe_allow_html=True)
     st.markdown("### 📍 Quick Links")
-    st.markdown("- [Event Map](https://example.com)")
-    st.markdown("- [Judging Criteria](https://example.com)")
-    st.markdown("- [Prizes](https://example.com)")
-    st.markdown("- [Rules](https://example.com)")
+    
+    # Enhanced quick links with icons and hover effects
+    quick_links = [
+        {"name": "Event Map", "url": "https://example.com", "icon": "🗺️"},
+        {"name": "Judging Criteria", "url": "https://example.com", "icon": "📊"},
+        {"name": "Prizes", "url": "https://example.com", "icon": "🏆"},
+        {"name": "Rules", "url": "https://example.com", "icon": "📜"}
+    ]
+    
+    for link in quick_links:
+        st.markdown(f"""
+        <a href="{link['url']}" target="_blank" style="text-decoration: none; color: inherit;">
+            <div style='padding: 10px; margin-bottom: 10px; border-radius: 8px; background-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.3s ease;' onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.05)';">
+                <div style='display: flex; align-items: center;'>
+                    <div style='font-size: 20px; margin-right: 10px;'>{link['icon']}</div>
+                    <div>{link['name']}</div>
+                </div>
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Add a new countdown timer section
+    st.markdown("<div class='card' style='background: linear-gradient(to bottom right, #fefefe, #f5f7fa);'>", unsafe_allow_html=True)
+    st.markdown("### ⏱️ Hackathon Countdown")
+    
+    # Simulate a countdown timer (would need JavaScript for a real one)
+    hours_left = 32
+    st.markdown(f"""
+    <div style='text-align: center;'>
+        <div style='font-size: 2.5em; font-weight: bold; margin: 10px 0; background: linear-gradient(90deg, #4F46E5, #6366F1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>{hours_left}:00:00</div>
+        <div style='font-size: 0.9em; opacity: 0.8;'>Hours Remaining</div>
+        <div style='width: 100%; height: 8px; background-color: #e5e7eb; border-radius: 4px; margin: 15px 0; overflow: hidden;'>
+            <div style='width: 65%; height: 100%; background: linear-gradient(90deg, #4F46E5, #6366F1); border-radius: 4px;'></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
+# Main content with enhanced styling
+st.markdown("<h1 style='text-align: center; font-size: 2.5em; margin-bottom: 30px;'>Welcome to the Hackathon!</h1>", unsafe_allow_html=True)
+
 # Main content
-st.markdown("<h1 style='text-align: center;'>Welcome to the Hackathon!</h1>", unsafe_allow_html=True)
+#st.markdown("<h1 style='text-align: center;'>Welcome to the Hackathon!</h1>", unsafe_allow_html=True)
 
 # Load data
 try:
