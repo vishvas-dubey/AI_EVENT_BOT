@@ -19,6 +19,7 @@ import os
 os.environ["STREAMLIT_WATCHER_NONPYTHON_FILES"] = "false"
 
 
+
 # Set page config
 st.set_page_config(
     page_title="Event Bot AI",
