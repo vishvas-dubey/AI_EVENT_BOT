@@ -9,6 +9,15 @@ import av
 import time
 import queue
 from typing import List, Optional
+from streamlit_mic_recorder import mic_recorder
+import whisper
+import tempfile
+import io
+from pydub import AudioSegment
+from st_audiorec import st_audiorec
+import os
+os.environ["STREAMLIT_WATCHER_NONPYTHON_FILES"] = "false"
+
 
 # Set page config
 st.set_page_config(
@@ -215,6 +224,10 @@ except Exception as e:
     
     confirmed = ["John Doe", "Jane Smith", "Alex Johnson", "Test User"]
 
+# Initialize session state for speech recognition result
+if "spoken_name" not in st.session_state:
+    st.session_state.spoken_name = ""
+
 # Display authentication section
 col1, col2 = st.columns([2, 1])
 
@@ -226,107 +239,47 @@ with col1:
     # Voice input
     st.markdown("<div style='text-align: center;'><h4>🎙️ Say your name</h4><div style='font-size: 50px; margin: 20px 0;' class='pulse-animation'>🎤</div></div>", unsafe_allow_html=True)
     
-    class AudioProcessor(AudioProcessorBase):
-        def __init__(self) -> None:
-            self.recognizer = sr.Recognizer()
-            self.result_text = ""
-            
-            # बेहतर वॉइस डिटेक्शन के लिए पैरामीटर्स
-            self.recognizer.energy_threshold = 300
-            self.recognizer.dynamic_energy_threshold = True
-            self.recognizer.pause_threshold = 0.8
-            self.recognizer.phrase_threshold = 0.3
-            self.recognizer.non_speaking_duration = 0.5
-            
-            # ऑडियो फ्रेम्स के लिए क्यू
-            self._frames = []
-            self._audio_queue = queue.Queue()
-            self._sample_rate = None
-            
-            # प्रोसेसिंग के लिए ज़रूरी पैरामीटर्स
-            self._num_channels = None
-            self._bytes_per_sample = None
-            
-        def recv_queued(self, frames: List[av.AudioFrame]) -> List[av.AudioFrame]:
-            if len(frames) == 0:
-                return []
-                
-            # Get audio parameters from first frame
-            frame = frames[0]
-            if self._sample_rate is None:
-                self._sample_rate = frame.sample_rate
-            if self._num_channels is None:
-                self._num_channels = frame.layout.nb_channels
-            if self._bytes_per_sample is None:
-                self._bytes_per_sample = 2  # 16-bit audio
-                
-            # Collect audio frames
-            for frame in frames:
-                self._frames.append(frame.to_ndarray().flatten().tobytes())
-                
-            # Collect enough audio data before processing (1 second)
-            buffer_duration = 1.0  # 1 second
-            expected_buffer_size = int(self._sample_rate * buffer_duration)
-            
-            # Process audio if we have enough data
-            current_buffer_size = sum(len(f) // self._bytes_per_sample for f in self._frames)
-            
-            if current_buffer_size >= expected_buffer_size:
-                self._process_audio()
-                
-            return frames
-        
-        def _process_audio(self):
-            try:
-                # Combine all audio frames
-                audio_data = b''.join(self._frames)
-                
-                # Convert to AudioData
-                audio = sr.AudioData(
-                    audio_data,
-                    sample_rate=self._sample_rate,
-                    sample_width=self._bytes_per_sample
-                )
-                
-                # Reset frames buffer after processing
-                self._frames = []
-                
-                # Recognize speech using Google Speech Recognition
-                text = self.recognizer.recognize_google(audio, language="hi-IN")
-                
-                if text:
-                    print(f"Recognized: {text}")
-                    self.result_text = text
-                else:
-                    print("No text recognized.")
-                    
-            except sr.UnknownValueError:
-                print("Could not understand audio - speech unintelligible")
-            except sr.RequestError as e:
-                print(f"Could not request results from Google Speech Recognition service; {e}")
-            except Exception as e:
-                print(f"Error processing audio: {e}")
+    # Voice recognition using Streamlit Mic Recorder
+
+    audio_data = st_audiorec()
+
+    if audio_data:
+        st.audio(audio_data, format="audio/wav")
+
+        # Process and transcribe
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio_file:
+            audio = AudioSegment.from_file(io.BytesIO(audio_data), format="wav")
+            audio.export(temp_audio_file.name, format="wav")
+
+            model = whisper.load_model("small")  # You can change to "small", "medium", etc.
+            result = model.transcribe(temp_audio_file.name, language="en")
+            print(result["language"])
 
 
-    # मुख्य कोड में इस तरह उपयोग करें
-    webrtc_ctx = webrtc_streamer(
-        key="speech",
-        audio_processor_factory=AudioProcessor,
-        media_stream_constraints={"audio": True, "video": False},
-        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-        async_processing=True,
-    )
+            # Save to session state
+            st.session_state.spoken_name = result["text"]
 
-    spoken_name = ""
-    if webrtc_ctx.audio_processor:
-        spoken_name = webrtc_ctx.audio_processor.result_text
-        if spoken_name:
-            st.info(f"मैंने सुना: {spoken_name}")
+            st.subheader("📝 Transcription:")
+            st.write(result["text"])
+
+    spoken_name = st.session_state.spoken_name
+    if spoken_name:
+        st.info(f"मैंने सुना: {spoken_name}")
+        st.subheader("📝 Transcription:")
+        st.write(f"मैंने सुना: **{spoken_name}**")
+
+        confirm = st.radio("क्या यह आपका नाम है?", ("Yes", "No"), key="confirm_radio")
+        if confirm == "Yes":
+            st.session_state.confirmed_name = spoken_name
         else:
-            st.info("कृपया अपना नाम बोलें... (आवाज़ का इनपुट लिया जा रहा है)")
-            
-    # वैकल्पिक: मैनुअल माइक्रोफोन बटन
+            st.session_state.confirmed_name = ""
+            st.warning("कृपया अपना नाम फिर से बोलें या नीचे टाइप करें।")
+    else:
+        st.info("कृपया अपना नाम बोलें...")
+
+    # Optional manual fallback
     if st.button("मैनुअल माइक्रोफोन टेस्ट"):
+        import speech_recognition as sr
         try:
             r = sr.Recognizer()
             with sr.Microphone() as source:
@@ -335,19 +288,18 @@ with col1:
                 try:
                     text = r.recognize_google(audio, language="hi-IN")
                     st.success(f"आपने कहा: {text}")
-                    # ऑटोमैटिक रूप से इनपुट फिल्ड में डालें
-                    if text:
-                        spoken_name = text
+                    st.session_state.spoken_name = text
                 except sr.UnknownValueError:
                     st.error("माफ़ करें, मैं आपकी आवाज़ नहीं समझ पाया")
                 except sr.RequestError:
                     st.error("Google Speech API से कनेक्शन में समस्या है")
         except Exception as e:
             st.error(f"माइक्रोफोन एक्सेस में समस्या: {e}")
-    
+
+
     st.markdown("<h4>OR</h4>", unsafe_allow_html=True)
     typed_name = st.text_input("Type your full name:", placeholder="e.g. John Doe")
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)    
 
 with col2:
     st.markdown("""
@@ -359,8 +311,13 @@ with col2:
         </div>
     """, unsafe_allow_html=True)
 
-# Use whichever is non-empty
-user_name = spoken_name.strip() or typed_name.strip()
+
+# Final user name
+user_name = st.session_state.spoken_name.strip() or typed_name.strip()
+
+# Debug information (can be removed in production)
+if user_name:
+    st.write(f"Detected name: {user_name}")
 
 # Confirm registration
 if user_name:
