@@ -1,4 +1,5 @@
 # AI_EVENT_BOT
+
 AI Workshop Event Bot
 Solution for the AI Hackathon Challenge
 This repository contains a complete solution for the "Build the Event Bot" AI Hackathon challenge, creating a smart assistant to enhance participant experience during the upcoming workshop on May 18th, 2025.

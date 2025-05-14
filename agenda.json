@@ -1,0 +1,35 @@
+{
+    "Day 1": [
+      {
+        "time": "10:00 - 11:00 AM",
+        "topic": "Workshop: Build an Event Bot using RAG",
+        "tags": ["RAG", "event bot", "retrieval augmented generation", "AI workshop"]
+      },
+      {
+        "time": "11:00 - 12:00 PM",
+        "topic": "Industry Connect Session - Mr. Ravi Babu, CEO, Apex Cura Healthcare",
+        "tags": ["industry connect", "healthcare", "CEO talk", "apex cura"]
+      },
+      {
+        "time": "12:00 - 1:00 PM",
+        "topic": "Session by a Google Speaker (TBA)",
+        "tags": ["google", "tech talk", "inspiration", "guest speaker"]
+      },
+      {
+        "time": "1:00 - 2:00 PM",
+        "topic": "Lunch (Sponsored by Google)",
+        "tags": ["lunch", "break", "networking"]
+      },
+      {
+        "time": "2:00 - 3:00 PM",
+        "topic": "Workshop: Automating Payment Processes using Claude & MCP Server",
+        "tags": ["payments", "automation", "claude", "mcp server", "AI workflow"]
+      },
+      {
+        "time": "3:00 - 4:00 PM",
+        "topic": "Workshop: Building Multi AI Agent",
+        "tags": ["multi-agent", "AI agent", "agentic workflow", "advanced AI"]
+      }
+    ]
+  }
+  
