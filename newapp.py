@@ -14,6 +14,8 @@ import speech_recognition as sr
 from streamlit_mic_recorder import mic_recorder
 from google.cloud import speech
 import google.generativeai as genai
+from langchain.prompts import PromptTemplate
+from langchain.chains import RetrievalQA
 
 # Move these helper functions to the top of the file, after imports
 def extract_candidate_info(text):
@@ -138,6 +140,46 @@ def search_candidates(query, vectorstore, top_k=5, query_type="general"):
                 candidates.append(candidate)
         return candidates
 
+def create_resume_qa_chain(vectorstore):
+    """Create a QA chain for resume search"""
+    
+    # Initialize Gemini model for chat
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-1.5-pro",
+        temperature=0.7
+    )
+    
+    # Create template for better responses
+    template = """You are a helpful HR assistant for a hackathon event.
+    Use the following resume information to answer questions:
+    {context}
+    
+    Question: {question}
+    
+    Give a clear, structured response:
+    - For questions about specific skills, list relevant candidates
+    - For questions about a person, show their skills and experience
+    - Always include the candidate's name in the response
+    - If information is not found, clearly state that
+    """
+    
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=["context", "question"]
+    )
+    
+    # Create the RAG chain
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+        chain_type_kwargs={
+            "prompt": prompt
+        }
+    )
+    
+    return qa_chain
+
 # Initialize resume search right after the functions
 try:
     resume_docs = load_resumes("resumes")
@@ -177,133 +219,29 @@ load_css("style.css")
 
 # --- Hero Section ---
 st.markdown("""
-<div style="text-align: center; padding: 50px; background: linear-gradient(135deg, #333333, #555555); color: white; border-radius: 10px; margin-bottom: 30px;">
-    <h1 style="font-size: 3em; margin-bottom: 10px;">Welcome to Event Bot AI</h1>
-    <p style="font-size: 1.2em;">Your Personal Hackathon Assistant</p>
-    <a href="#" style="text-decoration: none;">
-        <button style="background: white; color: #333333; padding: 10px 20px; font-size: 1em; border: none; border-radius: 5px; cursor: pointer;">Get Started</button>
-    </a>
+<div style="
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 220px; 
+    margin-bottom: 30px;">
+    <div style="
+        background: linear-gradient(135deg, #333333, #555555); 
+        color: white; 
+        border-radius: 18px; 
+        padding: 32px 40px 28px 40px; 
+        box-shadow: 0 4px 24px rgba(0,0,0,0.10); 
+        max-width: 600px; 
+        width: 100%; 
+        text-align: center;">
+        <h1 style="font-size: 2.2em; margin-bottom: 8px;">Welcome to Event Bot AI</h1>
+        <p style="font-size: 1.15em; margin-bottom: 18px;">Your Personal Hackathon Assistant</p>
+        <a href="#" style="text-decoration: none;">
+            <button style="background: white; color: #333333; padding: 10px 28px; font-size: 1em; border: none; border-radius: 7px; cursor: pointer; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.07);">Let Get Started</button>
+        </a>
+    </div>
 </div>
 """, unsafe_allow_html=True)
-
-# --- Sidebar Content ---
-with st.sidebar:
-    st.markdown("<div style='text-align: center; margin-bottom: 20px;'>", unsafe_allow_html=True)
-    st.markdown("<h2 style='margin-bottom: 5px;'>🤖 Event Bot AI</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 1.1em; margin-bottom: 25px;'>Your Personal Hackathon Assistant</p>", unsafe_allow_html=True)
-    
-    st.markdown("<div style='text-align: center; padding: 15px;'><span style='font-size: 90px;' class='floating-animation'>🤖</span></div>", unsafe_allow_html=True)
-    
-    st.markdown("<div class='card' style='background: linear-gradient(to bottom right, #fefefe, #f5f7fa);'>", unsafe_allow_html=True)
-    st.markdown("### 🗓️ Event Schedule")
-    
-    # Add a bit more detail and styling to the schedule
-    schedule_items = [
-        {"time": "9:00 AM", "event": "Registration", "icon": "📋"},
-        {"time": "10:00 AM", "event": "Opening Ceremony", "icon": "🎬"},
-        {"time": "1:00 PM", "event": "Lunch Break", "icon": "🍽️"},
-        {"time": "6:00 PM", "event": "Demos & Judging", "icon": "🏆"}
-    ]
-    
-    for item in schedule_items:
-        st.markdown(f"""
-        <div style='padding: 10px; margin-bottom: 10px; border-radius: 8px; background-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
-            <div style='display: flex; align-items: center;'>
-                <div style='font-size: 22px; margin-right: 10px;'>{item['icon']}</div>
-                <div>
-                    <div style='font-weight: bold; color: #4F46E5;'>{item['time']}</div>
-                    <div>{item['event']}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown("<div class='card' style='background: linear-gradient(to bottom right, #fefefe, #f5f7fa);'>", unsafe_allow_html=True)
-    st.markdown("### 📍 Quick Links")
-    
-    # Enhanced quick links with icons and hover effects
-    quick_links = [
-        {"name": "Event Map", "url": "https://example.com", "icon": "🗺️"},
-        {"name": "Judging Criteria", "url": "https://example.com", "icon": "📊"},
-        {"name": "Prizes", "url": "https://example.com", "icon": "🏆"},
-        {"name": "Rules", "url": "https://example.com", "icon": "📜"}
-    ]
-    
-    for link in quick_links:
-        st.markdown(f"""
-        <a href="{link['url']}" target="_blank" style="text-decoration: none; color: inherit;">
-            <div style='padding: 10px; margin-bottom: 10px; border-radius: 8px; background-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.3s ease;' onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.05)';">
-                <div style='display: flex; align-items: center;'>
-                    <div style='font-size: 20px; margin-right: 10px;'>{link['icon']}</div>
-                    <div>{link['name']}</div>
-                </div>
-            </div>
-        </a>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    # Add a new countdown timer section
-    st.markdown("<div class='card' style='background: linear-gradient(to bottom right, #fefefe, #f5f7fa);'>", unsafe_allow_html=True)
-    st.markdown("### ⏱️ Hackathon Countdown")
-    
-    # Simulate a countdown timer (would need JavaScript for a real one)
-    hours_left = 32
-    st.markdown(f"""
-    <div style='text-align: center;'>
-        <div style='font-size: 2.5em; font-weight: bold; margin: 10px 0; background: linear-gradient(90deg, #4F46E5, #6366F1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>{hours_left}:00:00</div>
-        <div style='font-size: 0.9em; opacity: 0.8;'>Hours Remaining</div>
-        <div style='width: 100%; height: 8px; background-color: #e5e7eb; border-radius: 4px; margin: 15px 0; overflow: hidden;'>
-            <div style='width: 65%; height: 100%; background: linear-gradient(90deg, #4F46E5, #6366F1); border-radius: 4px;'></div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Feedback form in sidebar
-    st.markdown("<div class='card' style='margin-top: 30px; background: linear-gradient(to bottom right, #222, #555); color: #fff;'>", unsafe_allow_html=True)
-    st.markdown("### 📝 Event Feedback", unsafe_allow_html=True)
-    if "feedback_submitted" not in st.session_state:
-        st.session_state.feedback_submitted = False
-    if not st.session_state.feedback_submitted:
-        feedback_questions = [
-            "How would you rate the overall event experience?",
-            "How helpful were the sessions for your learning?",
-            "How was the venue and facilities?",
-            "How likely are you to recommend this event to others?",
-            "Any suggestions or comments?"
-        ]
-        feedback_answers = []
-        for i, q in enumerate(feedback_questions[:-1]):
-            feedback_answers.append(st.radio(q, ["1 - Poor", "2", "3", "4", "5 - Excellent"], key=f"fb_{i}"))
-        feedback_answers.append(st.text_area(feedback_questions[-1], key="fb_suggestion"))
-        if st.button("Submit Feedback"):
-            feedback_data = {f"q{i+1}": ans for i, ans in enumerate(feedback_answers)}
-            import json
-            import datetime
-            feedback_data["timestamp"] = str(datetime.datetime.now())
-            with open("feedback_responses.json", "a") as f:
-                f.write(json.dumps(feedback_data) + "\n")
-            st.success("Thank you for your feedback!")
-            st.session_state.feedback_submitted = True
-    else:
-        st.info("You have already submitted feedback. Thank you!")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Developer names section
-    st.markdown("""
-    <div class='card' style='background: linear-gradient(to bottom right, #23272b, #444); color: #e0e0e0; margin-top: 20px; text-align: center;'>
-        <h4 style='margin-bottom: 10px; color: #fff;'>Developed by</h4>
-        <ul style='list-style: none; padding: 0; margin: 0; font-size: 1.08em;'>
-            <li style='margin-bottom: 6px;'>Vishvas Dubey</li>
-            <li style='margin-bottom: 6px;'>Aishwarya Patil</li>
-            <li style='margin-bottom: 6px;'>Shuritika Shripat</li>
-            <li>Shreeja Sharma</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
 
 # Main content with enhanced styling
 st.markdown("<h1 style='text-align: center; font-size: 2.5em; margin-bottom: 30px;'>Welcome to the Hackathon!</h1>", unsafe_allow_html=True)
@@ -621,45 +559,6 @@ if user_name:
     <p>Your responses will help us improve future events!</p>
 </div>
 """, unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        with tab5:
-            st.markdown("<div class='card'>", unsafe_allow_html=True)
-            st.markdown("### 🔎 Search Candidates")
-            
-            search_type = st.radio("Search type:", ["General Search", "Get Skills", "Find by Technology"])
-            
-            if search_type == "General Search":
-                query = st.text_input("Search query:", placeholder="e.g. Gen AI, Cloud, ML")
-                if st.button("Search"):
-                    results = search_candidates(query, resume_vectorstore, query_type="general")
-                    if results:
-                        for candidate in results:
-                            st.write(f"**{candidate['name']}**")
-                            st.write(f"Skills: {', '.join(candidate['skills'])}")
-                            st.write("---")
-                            
-            elif search_type == "Get Skills":
-                name = st.text_input("Enter candidate name:", placeholder="e.g. Arjun Verma")
-                if st.button("Get Skills"):
-                    result = search_candidates(name, resume_vectorstore, query_type="skills")
-                    if result:
-                        st.write(f"**{result['name']}'s Skills:**")
-                        for skill in result['skills']:
-                            st.write(f"- {skill}")
-                    else:
-                        st.warning("Candidate not found")
-                        
-            else:  # Find by Technology
-                tech = st.text_input("Enter technology:", placeholder="e.g. Gen AI")
-                if st.button("Find Candidates"):
-                    results = search_candidates(tech, resume_vectorstore, query_type="names_only")
-                    if results:
-                        st.write("**Matching Candidates:**")
-                        for name in results:
-                            st.write(f"- {name}")
-                    else:
-                        st.warning("No candidates found with this technology")
             st.markdown("</div>", unsafe_allow_html=True)
 
         with tab5:
